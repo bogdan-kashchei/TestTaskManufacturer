@@ -80,7 +80,9 @@ class ProductsManufacturer extends \Magento\Framework\App\Action\Action
         $jsonProducts = [];
         foreach ($manufacturerProducts as $manufacturerProduct) {
             foreach ($manufacturerProduct as $manufacturerOption) {
-                array_push($jsonProducts, $manufacturerOption->getData());
+                if(!in_array($manufacturerOption->getData(),$jsonProducts)){
+                    array_push($jsonProducts, $manufacturerOption->getData());
+                }
             }
         }
         $resultJson = $this->resultJsonFactory->create();
