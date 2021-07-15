@@ -1,0 +1,112 @@
+<div class="widget">
+    <input id="class-select" type="text" placeholder="CSS-class" />
+    <input id="max-products" type="number" placeholder="Max products on page" />
+    <input id="empty-options" type="checkbox" />Show/hide empty options
+    <ul id="options-list"></ul>
+    <div class="product-list"></div>
+</div>
+
+<script>
+    require(['jquery'], function ($) {
+
+        let getOptionsWithProductManufacturer = function () {
+            $(document).ready(function () {
+                let url =
+                    "<?php echo $block->getUrl() . 'manufacturer/index/OptionsWithProductManufacturer' ?>";
+                try {
+                    $.ajax({
+                        url: url,
+                        type: 'GET',
+                        dataType: 'json',
+                        showLoader: true,
+                        success: function (data) {
+                            let options = data;
+                            for (key in options) {
+                                $('#options-list').append(
+                                    `<li class='option'><a href="#" data-id=${key}>${options[key]}</a></li>`
+                                );
+                            }
+                        },
+                    });
+                } catch (e) {}
+            });
+        }
+
+        let getOptionsManufacturer = function () {
+            $(document).ready(function () {
+                let url =
+                    "<?php echo $block->getUrl() . 'manufacturer/index/OptionsManufacturer' ?>";
+                try {
+                    $.ajax({
+                        url: url,
+                        type: 'GET',
+                        dataType: 'json',
+                        showLoader: true,
+                        success: function (data) {
+                            let options = data;
+                            for (let i = 1; i < options.length; i++) {
+                                $('#options-list').append(
+                                    `<li class='option'><a href="#" data-id=${options[i].value}>${options[i].label}</a></li>`
+                                );
+                            }
+                        },
+                    });
+                } catch (e) {}
+            });
+        }
+
+        getOptionsWithProductManufacturer();
+
+        $('#options-list').on('click', function (event) {
+            let url =
+                "<?php echo $block->getUrl() . 'manufacturer/index/ProductsManufacturer' ?>";
+            $('.product-list').html('');
+            let target = $(event.target);
+            if (target.is('a')) {
+                try {
+                    $.ajax({
+                        url: url,
+                        type: 'GET',
+                        dataType: 'json',
+                        showLoader: true,
+                        success: function (data) {
+                            let products = data;
+                            let dataId = target.data('id');
+                            let counter = 0;
+                            for (let i = 0; (i < products.length && i < maxProducts); i++) {
+                                if (products[i].manufacturer == dataId) {
+                                    counter++;
+                                    $('.product-list').innerHTML += $('.product-list').append(
+                                        `<p class ="products">${products[i].name}<p>`
+                                    );
+                                }
+
+                            }
+                        },
+                    });
+                } catch (e) {}
+            }
+        });
+
+        $('#class-select').on('blur', function () {
+            $('.widget').addClass(this.value);
+        });
+
+        let maxProducts = 99999;
+        $('#max-products').on('blur', function () {
+            if (this.value) {
+                maxProducts = this.value;
+            }
+        });
+
+        $('#empty-options').on('change', function () {
+            $('#options-list').html('');
+            if(this.checked) {
+                getOptionsManufacturer();
+            } else {
+                getOptionsWithProductManufacturer();
+            }
+        })
+
+    });
+</script>
